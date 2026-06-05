@@ -6,6 +6,7 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { AppButton } from "@/components/ui/app-button";
 import { useToast } from "@/components/ui/toast";
 import { Routes } from "@/lib/routes";
+import { authCallbackUrl } from "@/lib/site-url";
 
 export function SignupVerifyActions({ email }: { email: string }) {
   const { show } = useToast();
@@ -23,7 +24,7 @@ export function SignupVerifyActions({ email }: { email: string }) {
         type: "signup",
         email,
         options: {
-          emailRedirectTo: `${window.location.origin}${Routes.authCallback}`,
+          emailRedirectTo: authCallbackUrl(),
         },
       });
       if (error) show(error.message, "error");

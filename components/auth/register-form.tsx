@@ -8,6 +8,7 @@ import { AppButton } from "@/components/ui/app-button";
 import { useToast } from "@/components/ui/toast";
 import { KvkkConsent } from "./kvkk-consent";
 import { Routes } from "@/lib/routes";
+import { authCallbackUrl } from "@/lib/site-url";
 import {
   validateEmail,
   validatePassword,
@@ -49,7 +50,7 @@ export function RegisterForm() {
         email: email.trim(),
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}${Routes.authCallback}`,
+          emailRedirectTo: authCallbackUrl(),
           data: {
             full_name: fullName.trim(),
             phone: phone.trim() || undefined,

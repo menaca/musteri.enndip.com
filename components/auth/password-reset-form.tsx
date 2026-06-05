@@ -7,6 +7,7 @@ import { AppTextField } from "@/components/ui/app-text-field";
 import { AppButton } from "@/components/ui/app-button";
 import { useToast } from "@/components/ui/toast";
 import { Routes } from "@/lib/routes";
+import { authCallbackUrl } from "@/lib/site-url";
 import { validateEmail } from "@/lib/auth/validators";
 
 export function PasswordResetForm() {
@@ -28,7 +29,7 @@ export function PasswordResetForm() {
       const supabase = getSupabaseBrowserClient();
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(
         email.trim(),
-        { redirectTo: `${window.location.origin}${Routes.authCallback}?next=${Routes.account}` },
+        { redirectTo: authCallbackUrl(Routes.account) },
       );
       if (resetError) {
         show(resetError.message, "error");

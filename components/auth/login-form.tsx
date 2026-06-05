@@ -10,6 +10,7 @@ import { useToast } from "@/components/ui/toast";
 import { AlertIcon } from "@/components/ui/icons";
 import { Routes } from "@/lib/routes";
 import { validateEmail, validatePassword, isEmailNotConfirmed } from "@/lib/auth/validators";
+import { authCallbackUrl } from "@/lib/site-url";
 
 export function LoginForm() {
   const router = useRouter();
@@ -70,7 +71,7 @@ export function LoginForm() {
         type: "signup",
         email: email.trim(),
         options: {
-          emailRedirectTo: `${window.location.origin}${Routes.authCallback}`,
+          emailRedirectTo: authCallbackUrl(),
         },
       });
       if (error) show(error.message, "error");

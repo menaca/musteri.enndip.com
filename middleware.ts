@@ -3,6 +3,17 @@ import { updateSession } from "@/lib/supabase/middleware";
 import { GUEST_COOKIE } from "@/lib/auth/guest";
 import { AUTH_REQUIRED_PATHS, AUTH_PUBLIC_PATHS, Routes } from "@/lib/routes";
 
+const SITE_ORIGIN =
+  (process.env.NEXT_PUBLIC_SITE_URL ?? "https://musteri.enndip.com").replace(/\/+$/, "");
+
+function appUrl(path: string, search?: Record<string, string>) {
+  const url = new URL(path, SITE_ORIGIN);
+  if (search) {
+    for (const [k, v] of Object.entries(search)) url.searchParams.set(k, v);
+  }
+  return url;
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -15,20 +26,18 @@ export async function middleware(request: NextRequest) {
   // 1) Oturum gerektiren rotalar — anon ve guest engellenir.
   if (AUTH_REQUIRED_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {
     if (!isAuthed) {
-      const url = new URL(Routes.login, request.url);
-      url.searchParams.set("redirectTo", pathname);
-      return NextResponse.redirect(url);
+      return NextResponse.redirect(appUrl(Routes.login, { redirectTo: pathname }));
     }
   }
 
   // 2) Public auth rotaları — oturumluyken home'a at.
   if (isAuthed && AUTH_PUBLIC_PATHS.some((p) => pathname === p)) {
-    return NextResponse.redirect(new URL(Routes.home, request.url));
+    return NextResponse.redirect(appUrl(Routes.home));
   }
 
   // 3) İlk açılış: kök ziyaret + ne oturum ne guest → login (sol panelde onboarding).
   if (pathname === Routes.home && !isAuthed && !isGuest) {
-    return NextResponse.redirect(new URL(Routes.login, request.url));
+    return NextResponse.redirect(appUrl(Routes.login));
   }
 
   return response;

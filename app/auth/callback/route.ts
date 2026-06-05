@@ -2,7 +2,13 @@ import { NextResponse, type NextRequest } from "next/server";
 import { cookies } from "next/headers";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { GUEST_COOKIE } from "@/lib/auth/guest";
+import { publicEnv } from "@/lib/env";
 import { Routes } from "@/lib/routes";
+
+function redirectBase(request: NextRequest): string {
+  const configured = publicEnv.siteUrl.replace(/\/+$/, "");
+  return configured || request.nextUrl.origin;
+}
 
 /**
  * OAuth (Google/Apple) ve e-posta bağlantısı dönüş noktası.
@@ -33,7 +39,7 @@ export async function GET(request: NextRequest) {
   const store = await cookies();
   store.delete(GUEST_COOKIE);
 
-  return NextResponse.redirect(new URL(next, request.url));
+  return NextResponse.redirect(new URL(next, redirectBase(request)));
 }
 
 function sanitizeNext(next: string | null): string {
@@ -44,7 +50,7 @@ function sanitizeNext(next: string | null): string {
 }
 
 function redirectToError(request: NextRequest, message: string) {
-  const target = new URL(Routes.authLinkError, request.url);
+  const target = new URL(Routes.authLinkError, redirectBase(request));
   target.searchParams.set("message", message);
   return NextResponse.redirect(target);
 }

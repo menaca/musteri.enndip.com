@@ -4,6 +4,7 @@ import { useState } from "react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { useToast } from "@/components/ui/toast";
 import { Spinner } from "@/components/ui/spinner";
+import { authCallbackUrl } from "@/lib/site-url";
 import { cn } from "@/lib/utils";
 
 function GoogleMark() {
@@ -53,7 +54,7 @@ export function SocialSignIn({
     setLoading(provider);
     try {
       const supabase = getSupabaseBrowserClient();
-      const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`;
+      const redirectTo = authCallbackUrl(nextPath);
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: { redirectTo },
