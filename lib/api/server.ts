@@ -40,6 +40,7 @@ export async function apiFetch<T>(
 
   const headers: Record<string, string> = {
     Accept: "application/json",
+    "X-App-Source": "musteri_portal",
   };
 
   if (auth !== "none") {
