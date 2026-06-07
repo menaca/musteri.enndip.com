@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { cookies } from "next/headers";
 
 /**
@@ -6,7 +7,7 @@ import { cookies } from "next/headers";
  */
 export const GUEST_COOKIE = "enndip_guest";
 
-export async function isGuest(): Promise<boolean> {
+export const isGuest = cache(async (): Promise<boolean> => {
   const store = await cookies();
   return store.get(GUEST_COOKIE)?.value === "1";
-}
+});

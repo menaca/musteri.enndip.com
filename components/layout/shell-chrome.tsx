@@ -3,10 +3,8 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { SidebarContent } from "./sidebar-content";
 import { Logo } from "@/components/ui/logo";
 import { MenuIcon, CloseIcon } from "@/components/ui/icons";
-import type { SessionIdentity } from "@/lib/auth/session";
 import { Routes } from "@/lib/routes";
 
 /**
@@ -15,10 +13,11 @@ import { Routes } from "@/lib/routes";
  * - lg- : üstte hamburger + açılır drawer (mobil sidebar.png davranışı)
  */
 export function ShellChrome({
-  identity,
+  sidebar,
   children,
 }: {
-  identity: SessionIdentity;
+  /** Suspense ile stream edilen sidebar (kimlik + nav). */
+  sidebar: ReactNode;
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
@@ -41,7 +40,7 @@ export function ShellChrome({
     <div className="min-h-dvh lg:grid lg:grid-cols-[300px_1fr]">
       {/* Desktop sidebar */}
       <aside className="sticky top-0 hidden h-dvh border-r border-line bg-paper p-5 lg:block">
-        <SidebarContent identity={identity} />
+        {sidebar}
       </aside>
 
       <div className="flex min-h-dvh flex-col">
@@ -84,7 +83,7 @@ export function ShellChrome({
                 <CloseIcon size={24} />
               </button>
             </div>
-            <SidebarContent identity={identity} onNavigate={() => setOpen(false)} />
+            {sidebar}
           </div>
         </div>
       )}

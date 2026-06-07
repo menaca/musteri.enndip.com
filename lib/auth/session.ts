@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { getCurrentUser } from "@/lib/supabase/server";
 import { isGuest } from "@/lib/auth/guest";
 
@@ -14,7 +15,7 @@ export interface SessionIdentity {
  * Mobil davranışı: ad varsa ad, yoksa "enndip kullanıcısı", guest ise
  * "Misafir Kullanıcı".
  */
-export async function getSessionIdentity(): Promise<SessionIdentity> {
+export const getSessionIdentity = cache(async (): Promise<SessionIdentity> => {
   const user = await getCurrentUser();
   const guest = await isGuest();
 
@@ -44,4 +45,4 @@ export async function getSessionIdentity(): Promise<SessionIdentity> {
     email: null,
     avatarUrl: null,
   };
-}
+});

@@ -1,9 +1,22 @@
-import type { ReactNode } from "react";
+import { Suspense, type ReactNode } from "react";
 import { ShellChrome } from "./shell-chrome";
-import { getSessionIdentity } from "@/lib/auth/session";
+import { SidebarIdentity } from "./sidebar-identity";
+import { SidebarIdentitySkeleton } from "./sidebar-identity-skeleton";
 
-/** (app) grubu için server kabuk — kimliği çözer, ShellChrome'a verir. */
-export async function AppShell({ children }: { children: ReactNode }) {
-  const identity = await getSessionIdentity();
-  return <ShellChrome identity={identity}>{children}</ShellChrome>;
+/**
+ * (app) grubu kabuğu — sayfa içeriği auth beklenmeden stream edilir;
+ * sidebar kimliği ayrı Suspense boundary'de yüklenir.
+ */
+export function AppShell({ children }: { children: ReactNode }) {
+  const sidebar = (
+    <Suspense fallback={<SidebarIdentitySkeleton />}>
+      <SidebarIdentity />
+    </Suspense>
+  );
+
+  return (
+    <ShellChrome sidebar={sidebar}>
+      {children}
+    </ShellChrome>
+  );
 }

@@ -20,6 +20,10 @@ import type {
 } from "./types";
 
 const CATALOG_REVALIDATE = 60 * 30; // 30 dk — katalog yavaş değişir
+/** Kişisel veri — Next.js Data Cache (Bearer başına ayrı giriş). Mutasyonlarda revalidatePath ile tazelenir. */
+const USER_FEED_REVALIDATE = 30;
+const USER_LISTINGS_REVALIDATE = 60;
+const USER_PROFILE_REVALIDATE = 120;
 
 // ----- Onboarding -----
 export function getOnboardingSlide(locale = "tr") {
@@ -34,7 +38,7 @@ export async function getHomeFeed() {
   // Oturumluysa kişiselleşir → güncel olmalı.
   const feed = await apiFetch<HomeFeedDto>(Endpoints.homeFeed, {
     auth: "optional",
-    cache: "no-store",
+    revalidate: USER_FEED_REVALIDATE,
   });
   return {
     ...feed,
@@ -143,7 +147,7 @@ export async function getImagerySpin(
 export function getMyProfile() {
   return apiFetch<UserProfileDto>(Endpoints.me, {
     auth: "required",
-    cache: "no-store",
+    revalidate: USER_PROFILE_REVALIDATE,
   });
 }
 
@@ -151,6 +155,6 @@ export function getMyProfile() {
 export function getMyListings() {
   return apiFetch<ListingDto[]>(Endpoints.listings, {
     auth: "required",
-    cache: "no-store",
+    revalidate: USER_LISTINGS_REVALIDATE,
   });
 }
