@@ -6,6 +6,7 @@ export const STALE_TIMES = {
   profile: 120_000,
   brands: 30 * 60_000,
   series: 30 * 60_000,
+  modelBundle: 30 * 60_000,
 } as const;
 
 export const GC_TIME = 10 * 60_000;

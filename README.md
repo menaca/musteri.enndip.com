@@ -39,6 +39,7 @@ npm run typecheck   # tsc --noEmit (strict)
 - **PWA**: `app/manifest.ts`, SVG ikonlar (`app/icon.svg`, `app/apple-icon.svg`), offline kabuk (`public/sw.js` + `/offline`).
 - **Analitik**: Web oturum/event takibi `app/api/analytics/*` proxy üzerinden NestJS'e iletilir (`platform: web`).
 - **SEO**: `lang=tr`, `app/robots.ts`, `app/sitemap.ts`, OpenGraph/Twitter metadata.
+- **Performans (Faz 1–3)**: Çift katmanlı cache — Next.js Data Cache (sunucu TTL) + TanStack Query (bellek). Ana sekmeler `/api/bff/*` JSON ile client shell; listing akışı `GET /catalog/models/:id/bundle` + lazy IMAGIN galeri. Detay: `ARCHITECTURE.md` §3, `CHANGELOG.md` İterasyon 5.
 
 ## Vercel Deploy
 

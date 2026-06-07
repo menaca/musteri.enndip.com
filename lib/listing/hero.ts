@@ -1,10 +1,7 @@
 import "server-only";
 
-import {
-  getModelDetail,
-  getModelColors,
-  getImageryGallery,
-} from "@/lib/api/queries";
+import { getModelBundle } from "@/lib/api/queries";
+import { buildListingHeroFromBundle } from "./hero-client";
 
 export interface ListingColorChoice {
   id: string;
@@ -23,42 +20,19 @@ export interface ListingHero {
  * summary/offer ekranları için araç başlık görseli + model adı + seçili renkler.
  * Seçili renk varsa o renge ait IMAGIN görseli kullanılır.
  */
+/** Sunucu tarafı fallback — galeri beklemez; bundle preview kullanır. */
 export async function resolveListingHero(
   modelId: string,
   colorIds: string[],
 ): Promise<ListingHero> {
-  const [detail, colors] = await Promise.all([
-    getModelDetail(modelId).catch(() => null),
-    getModelColors(modelId).catch(() => []),
-  ]);
-
-  const selected = colorIds.length
-    ? colors.filter((c) => colorIds.includes(c.id))
-    : [];
-  const primary = selected[0] ?? colors[0] ?? null;
-
-  let imageUrl = detail?.previewImageUrl ?? null;
-  if (primary) {
-    try {
-      const gallery = await getImageryGallery(
-        modelId,
-        primary.imaginPaintId ?? undefined,
-        primary.imaginPaintDescription ?? undefined,
-      );
-      if (gallery.slides[0]?.url) imageUrl = gallery.slides[0].url;
-    } catch {
-      // fallback: model preview
-    }
+  const bundle = await getModelBundle(modelId).catch(() => null);
+  if (!bundle) {
+    return {
+      modelName: "",
+      modelWebsiteUrl: null,
+      imageUrl: null,
+      selectedColors: [],
+    };
   }
-
-  return {
-    modelName: detail?.name ?? "",
-    modelWebsiteUrl: detail?.websiteUrl ?? null,
-    imageUrl,
-    selectedColors: selected.map((c) => ({
-      id: c.id,
-      name: c.name,
-      hex: c.hexCode,
-    })),
-  };
+  return buildListingHeroFromBundle(bundle, colorIds);
 }

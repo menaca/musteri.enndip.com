@@ -67,3 +67,40 @@ Kararların gerekçesi burada yaşar. Karar değişirse eskisi "Superseded" işa
 - **Durum**: Accepted
 - **Karar**: `app/manifest.ts` + ikonlar + theme color; standalone display.
 - **Gerekçe**: Mobil tarayıcıda "ana ekrana ekle", hızlı tekrar yükleme, uygulama hissi.
+
+## ADR-W009 — Performans Faz 1: Sunucu cache + auth dedupe
+
+- **Tarih**: 2026-06-05
+- **Durum**: Accepted
+- **Bağlam**: Sekme geçişleri 10+ sn; her istekte tekrarlı Supabase auth ve `no-store` fetch.
+- **Karar**:
+  - `React.cache()` ile `getServerAuth()` — layout + BFF tek Supabase çağrısı.
+  - Layout `Suspense`: sayfa içeriği kimlik beklemeden stream.
+  - Kişisel GET'ler `revalidate` TTL (Bearer başına ayrı Data Cache girişi).
+  - Backend JWT validate'de `profile.role` 5 dk bellek cache.
+- **Gerekçe**: Güvenlik modeli değişmeden (httpOnly cookie) sunucu hop sayısı ve DB yükü azalır.
+- **Trade-off**: Kişisel veri en fazla TTL kadar gecikmeli görünür; mutasyonlarda `revalidatePath` + Faz 2 invalidation ile telafi.
+
+## ADR-W010 — Performans Faz 2: TanStack Query + BFF JSON
+
+- **Tarih**: 2026-06-05
+- **Durum**: Accepted
+- **Bağlam**: RSC-only navigasyonda sekme hafızası yok; her tıklama sunucu round-trip.
+- **Karar**:
+  - `@tanstack/react-query` bellek cache (stale-while-revalidate).
+  - Tarayıcı yalnızca `/api/bff/*` JSON çağırır; NestJS Bearer hâlâ sunucuda (`lib/api/server.ts`).
+  - Ana sekmeler client shell + `useQuery`; idle + hover prefetch.
+- **Gerekçe**: Gmail/Linear/Instagram web modeli — önce cache'ten anında render, arka planda tazeleme. Token client'a inmez.
+- **Alternatifler**: localStorage token + doğrudan API (reddedildi — XSS). Tam SPA (reddedildi — SEO/RSC kaybı).
+
+## ADR-W011 — Performans Faz 3: Model bundle + lazy galeri
+
+- **Tarih**: 2026-06-05
+- **Durum**: Accepted
+- **Bağlam**: `vehicle-options` 3 paralel + sıralı galeri fetch; summary/offer tekrarlı IMAGIN çağrısı.
+- **Karar**:
+  - Backend `GET /catalog/models/:id/bundle` (detay + panel spec + renkler; tam galeri yok).
+  - Listing sayfaları client + `useModelBundle`; preview anında, galeri client lazy.
+  - Motor seçiminde bundle prefetch.
+- **Gerekçe**: Waterfall kırılır; ilk paint 1–2 sn hedefi. Tam galeri UX'i korunur (arka plan yükleme).
+- **Trade-off**: Bundle'da preview URL'leri `getModelDetail` üzerinden gelir (tek IMAGIN resolve); renk değişiminde galeri hâlâ `/api/imagery/gallery`.

@@ -7,4 +7,5 @@ export const queryKeys = {
   brands: (category?: string) => ["bff", "brands", category ?? "all"] as const,
   series: (brandId: string, category?: string) =>
     ["bff", "series", brandId, category ?? "all"] as const,
+  modelBundle: (modelId: string) => ["bff", "model-bundle", modelId] as const,
 };

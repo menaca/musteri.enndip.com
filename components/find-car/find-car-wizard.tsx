@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import { shouldBypassImageOptimizer } from "@/lib/image";
 import { ShimmerBox } from "@/components/ui/shimmer";
@@ -15,6 +16,7 @@ import type {
   CarSeriesTrimDto,
   CarEngineDto,
 } from "@/lib/api/types";
+import { prefetchModelBundle } from "@/lib/query/prefetch";
 import { cn } from "@/lib/utils";
 
 type Step = "brand" | "series" | "trim" | "engine";
@@ -38,6 +40,7 @@ export function FindCarWizard({
   initialSeries?: CarSeriesDto[] | null;
 }) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { show } = useToast();
 
   const startAtSeries = !!preselectedBrand;
@@ -109,6 +112,7 @@ export function FindCarWizard({
 
   function selectEngine(en: CarEngineDto) {
     if (!brand) return;
+    prefetchModelBundle(queryClient, en.modelId);
     const qs = selectionToQueryString({
       brandId: brand.id,
       brandName: brand.name,

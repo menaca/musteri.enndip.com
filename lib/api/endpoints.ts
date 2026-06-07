@@ -18,6 +18,7 @@ export const Endpoints = {
     `/catalog/series/${seriesId}/trims/${trimId}/engines${categorySlug ? `?categorySlug=${encodeURIComponent(categorySlug)}` : ""}`,
 
   modelDetail: (modelId: string) => `/catalog/models/${modelId}`,
+  modelBundle: (modelId: string) => `/catalog/models/${modelId}/bundle`,
   modelPanelSpec: (modelId: string) => `/catalog/models/${modelId}/panel-spec`,
   modelColors: (modelId: string) => `/catalog/models/${modelId}/colors`,
 

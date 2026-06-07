@@ -1,7 +1,14 @@
 import type { QueryClient } from "@tanstack/react-query";
 import { bffFetch } from "@/lib/bff/client-fetch";
 import { BffRoutes } from "@/lib/bff/routes";
-import type { HomeFeedDto, ListingDto, UserProfileDto, BrandDto, CarSeriesDto } from "@/lib/api/types";
+import type {
+  HomeFeedDto,
+  ListingDto,
+  UserProfileDto,
+  BrandDto,
+  CarSeriesDto,
+  CarModelBundleDto,
+} from "@/lib/api/types";
 import { queryKeys } from "./keys";
 import { STALE_TIMES } from "./stale-times";
 
@@ -87,6 +94,17 @@ export function prefetchForHref(
     });
     return;
   }
+}
+
+export function prefetchModelBundle(
+  queryClient: QueryClient,
+  modelId: string,
+): void {
+  void queryClient.prefetchQuery({
+    queryKey: queryKeys.modelBundle(modelId),
+    queryFn: () => bffFetch<CarModelBundleDto>(BffRoutes.modelBundle(modelId)),
+    staleTime: STALE_TIMES.modelBundle,
+  });
 }
 
 export function prefetchSeries(

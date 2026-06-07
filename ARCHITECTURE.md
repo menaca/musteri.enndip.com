@@ -58,7 +58,17 @@ musteri.enndip.com/
 │   │   └── how-it-works/page.tsx
 │   └── api/
 │       ├── health/route.ts
-│       └── analytics/route.ts  # web analytics passthrough (opsiyonel)
+│       ├── analytics/          # session + events BFF proxy
+│       ├── bff/                # TanStack Query JSON (token sunucuda)
+│       │   ├── session/route.ts
+│       │   ├── home/route.ts
+│       │   ├── listings/route.ts
+│       │   ├── me/route.ts
+│       │   ├── brands/route.ts
+│       │   ├── series/route.ts
+│       │   └── models/[modelId]/bundle/route.ts
+│       ├── catalog/            # find-car wizard adım fetch
+│       └── imagery/render/     # IMAGIN same-origin proxy
 ├── components/
 │   ├── ui/                     # AppButton, AppTextField, Card, Shimmer, RemoteImage, ...
 │   ├── layout/                 # AppShell, Sidebar, MobileDrawer, TopBar, BackBar
@@ -75,7 +85,16 @@ musteri.enndip.com/
 │   ├── api/
 │   │   ├── server.ts           # BFF fetch: token cookie'den → Bearer
 │   │   ├── endpoints.ts        # endpoint path sabitleri
+│   │   ├── queries.ts            # sunucu tarafı veri fonksiyonları
 │   │   └── types.ts            # API DTO TypeScript tipleri
+│   ├── bff/
+│   │   ├── client-fetch.ts     # tarayıcı → /api/bff/* JSON
+│   │   └── routes.ts           # BFF path sabitleri
+│   ├── query/
+│   │   ├── hooks.ts            # useHomeFeed, useModelBundle, ...
+│   │   ├── keys.ts             # cache invalidation anahtarları
+│   │   ├── prefetch.ts         # idle + hover prefetch
+│   │   └── stale-times.ts
 │   ├── actions/                # "use server" mutasyonları (listing, profile)
 │   ├── auth/guest.ts           # guest cookie yönetimi
 │   ├── format.ts               # tr-TR tarih/sayı/para formatı
@@ -129,12 +148,24 @@ Her durumda middleware Supabase oturumunu yeniler (cookie tazeler).
 3. NestJS hata zarfı (`{ statusCode, error, message }`) tipli `ApiError`'a çevrilir.
 4. Public endpoint'ler token'sız da çalışır (guest).
 
-Cache stratejisi:
-- Katalog (brands/series/trims/engines, kategoriler): `revalidate` ile ISR benzeri cache.
-- Home feed: kısa `revalidate` (kullanıcıya özel ise `no-store`).
-- Kullanıcıya özel (`/users/me`, `/listings`): `no-store`.
+Cache stratejisi (çift katman):
 
-Write'lar `lib/actions/*` server action'larından; başarıda `revalidatePath`.
+**Katman A — Next.js Data Cache (sunucu, `lib/api/queries.ts`)**
+- Katalog / model bundle: `revalidate` 30 dk.
+- Home: 30s, İlanlar: 60s, Profil: 120s (Bearer başına ayrı giriş).
+- Mutasyonlar: `revalidatePath` + client `invalidateQueries`.
+
+**Katman B — TanStack Query (tarayıcı belleği, `lib/query/`)**
+- Ana sekmeler `useQuery` ile `/api/bff/*` JSON.
+- `staleTime` sunucu TTL ile uyumlu; cache hit → anında render (<500 ms).
+- `NavPrefetcher` (idle) + `NavLink` hover prefetch.
+
+Write'lar `lib/actions/*` server action'larından; başarıda `revalidatePath` + `invalidateUserData()`.
+
+### 3.1 Listing bundle
+- `GET /api/v1/catalog/models/:id/bundle` (NestJS) → detay + panel spec + renkler.
+- Web: `/api/bff/models/:id/bundle` → `useModelBundle`.
+- `vehicle-options`: preview anında; tam galeri `/api/imagery/gallery` lazy (client).
 
 ---
 
@@ -154,11 +185,13 @@ Token kaynağı: Flutter `lib/app/theme/*` (`tailwind.config.ts` içinde birebir
 
 ## 5. Performans
 
-- RSC ile veri server'da; client JS minimum.
-- Route bazlı `loading.tsx` skeleton (shimmer) → kasma hissi yok.
-- `next/image` (avif/webp) + remotePatterns (supabase, imagery host).
-- `<Link>` prefetch, `Suspense` ile parçalı streaming.
-- Katalog `fetch` revalidate cache → tekrar ziyaret hızlı.
+- **İlk yükleme**: route `loading.tsx` shimmer + BFF fetch (hedef 1–3 sn).
+- **Sekme geçişi (cache hit)**: TanStack Query bellek → anında (<500 ms).
+- **Auth**: `getServerAuth()` dedupe; layout kimlik ayrı Suspense.
+- **Listing**: model bundle tek istek; galeri lazy.
+- **Prefetch**: idle (tüm ana sekmeler) + hover (sidebar) + motor seçimi (bundle).
+- `next/image` (avif/webp); IMAGIN `/api/imagery/render` same-origin proxy.
+- Infra: Railway cold start kapalı + Vercel/Railway aynı bölge önerilir (Faz 1.5).
 
 ---
 

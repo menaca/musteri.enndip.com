@@ -21,7 +21,8 @@ Slogan: "Sıfır araçta en uygun fiyatlar enndip.com'da"
 | Stil | Tailwind CSS 3.4 (token'lar Flutter temasıyla birebir) |
 | Font | Plus Jakarta Sans (`next/font/google`) |
 | Auth | Supabase Auth (`@supabase/ssr`, httpOnly cookie / PKCE) |
-| Veri | NestJS Core API (`/api/v1`) — **BFF üzerinden, server-side** |
+| Veri | NestJS Core API (`/api/v1`) — **BFF** (RSC + `/api/bff/*` JSON) |
+| Client cache | TanStack React Query (stale-while-revalidate) |
 | Görsel | NestJS vehicle-imagery HMAC proxy + `next/image` |
 | Hosting | Vercel (`musteri.enndip.com`) |
 
@@ -47,7 +48,7 @@ Tarayıcı ──same-origin──► Next.js (Vercel) ──Bearer JWT──►
 | `/auth/callback` | deep link | public | PKCE code exchange |
 | `/` (home) | home | guest+ | `GET /home/feed` |
 | `/find-car` | find_car | guest+ | `GET /catalog/*` |
-| `/listing/vehicle-options` `/listing/summary` `/listing/offer` | post_selection | guest+ (publish: auth) | `catalog`, `vehicle-imagery`, `POST /listings` |
+| `/listing/vehicle-options` `/listing/summary` `/listing/offer` | post_selection | guest+ (publish: auth) | `GET /catalog/models/:id/bundle`, lazy `vehicle-imagery`, `POST /listings` |
 | `/account` | account | auth | `GET/PATCH /users/me` |
 | `/my-listings` | my_listings | auth | `GET /listings`, `DELETE /listings/:id` |
 | `/preferences` | settings/preferences | guest+ | localStorage |

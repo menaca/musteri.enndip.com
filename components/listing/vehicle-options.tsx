@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -22,19 +22,21 @@ export function VehicleOptions({
   modelWebsiteUrl,
   colors,
   panelSpec,
-  initialImages,
+  previewImages,
 }: {
   selection: VehicleSelection;
   modelName: string;
   modelWebsiteUrl: string | null;
   colors: CarModelColorDto[];
   panelSpec: CarModelPanelSpecDto | null;
-  initialImages: string[];
+  /** Bundle preview — galeri arka planda yüklenirken anında gösterilir. */
+  previewImages: string[];
 }) {
   const router = useRouter();
   const firstColor = colors[0];
+  const galleryBootstrapped = useRef(false);
 
-  const [images, setImages] = useState<string[]>(initialImages);
+  const [images, setImages] = useState<string[]>(previewImages);
   const [imgIndex, setImgIndex] = useState(0);
   const [imagesLoading, setImagesLoading] = useState(false);
   const [previewColorId, setPreviewColorId] = useState<string | undefined>(firstColor?.id);
@@ -47,6 +49,14 @@ export function VehicleOptions({
     () => colors.find((c) => c.id === previewColorId),
     [colors, previewColorId],
   );
+
+  useEffect(() => {
+    if (galleryBootstrapped.current) return;
+    galleryBootstrapped.current = true;
+    if (previewImages.length) setImages(previewImages);
+    if (firstColor) void loadGallery(firstColor);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- mount'ta bir kez
+  }, []);
 
   async function loadGallery(color: CarModelColorDto) {
     setImagesLoading(true);

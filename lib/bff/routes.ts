@@ -13,4 +13,5 @@ export const BffRoutes = {
     if (category) params.set("category", category);
     return `/api/bff/series?${params.toString()}`;
   },
+  modelBundle: (modelId: string) => `/api/bff/models/${modelId}/bundle`,
 } as const;

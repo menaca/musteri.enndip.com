@@ -64,6 +64,13 @@ export interface CarModelDetailDto {
   previewImageUrls?: string[];
 }
 
+/** Listing akışı — detay + panel spec + renkler (tek istek). */
+export interface CarModelBundleDto {
+  detail: CarModelDetailDto;
+  panelSpec: CarModelPanelSpecDto | null;
+  colors: CarModelColorDto[];
+}
+
 export interface CarModelEquipmentItem {
   label: string;
   value?: string | null;

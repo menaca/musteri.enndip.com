@@ -13,6 +13,7 @@ import type {
   CarModelDetailDto,
   CarModelColorDto,
   CarModelPanelSpecDto,
+  CarModelBundleDto,
   UserProfileDto,
   ListingDto,
   VehicleImageryGalleryDto,
@@ -78,6 +79,23 @@ export function getEngines(seriesId: string, trimId: string, categorySlug?: stri
     auth: "none",
     revalidate: CATALOG_REVALIDATE,
   });
+}
+
+export async function getModelBundle(modelId: string) {
+  const bundle = await apiFetch<CarModelBundleDto>(Endpoints.modelBundle(modelId), {
+    auth: "none",
+    revalidate: CATALOG_REVALIDATE,
+  });
+  return {
+    ...bundle,
+    detail: {
+      ...bundle.detail,
+      previewImageUrl: bundle.detail.previewImageUrl
+        ? toPublicImageryUrl(bundle.detail.previewImageUrl)
+        : null,
+      previewImageUrls: bundle.detail.previewImageUrls?.map(toPublicImageryUrl) ?? [],
+    },
+  };
 }
 
 export async function getModelDetail(modelId: string) {

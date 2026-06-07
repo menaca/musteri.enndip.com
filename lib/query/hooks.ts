@@ -9,6 +9,7 @@ import type {
   UserProfileDto,
   BrandDto,
   CarSeriesDto,
+  CarModelBundleDto,
 } from "@/lib/api/types";
 import { queryKeys } from "./keys";
 import { STALE_TIMES } from "./stale-times";
@@ -68,5 +69,14 @@ export function useSeries(brandId: string | null | undefined, category?: string)
     queryFn: () => bffFetch<CarSeriesDto[]>(BffRoutes.series(brandId!, category)),
     enabled: Boolean(brandId),
     staleTime: STALE_TIMES.series,
+  });
+}
+
+export function useModelBundle(modelId: string | null | undefined) {
+  return useQuery({
+    queryKey: queryKeys.modelBundle(modelId ?? ""),
+    queryFn: () => bffFetch<CarModelBundleDto>(BffRoutes.modelBundle(modelId!)),
+    enabled: Boolean(modelId),
+    staleTime: STALE_TIMES.modelBundle,
   });
 }
