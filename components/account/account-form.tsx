@@ -1,14 +1,17 @@
 "use client";
 
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { AppTextField } from "@/components/ui/app-text-field";
 import { AppButton } from "@/components/ui/app-button";
 import { useToast } from "@/components/ui/toast";
 import { updateProfileAction } from "@/lib/actions/profile";
 import { validateFullName, validatePhone } from "@/lib/auth/validators";
 import type { UserProfileDto } from "@/lib/api/types";
+import { queryKeys } from "@/lib/query/keys";
 
 export function AccountForm({ profile }: { profile: UserProfileDto }) {
+  const queryClient = useQueryClient();
   const { show } = useToast();
   const [fullName, setFullName] = useState(profile.fullName ?? "");
   const [phone, setPhone] = useState(profile.phone ?? "");
@@ -29,8 +32,12 @@ export function AccountForm({ profile }: { profile: UserProfileDto }) {
     setSaving(true);
     const result = await updateProfileAction({ fullName, phone });
     setSaving(false);
-    if (result.ok) show("Profilin güncellendi.", "success");
-    else show(result.message, "error");
+    if (result.ok) {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.profile });
+      show("Profilin güncellendi.", "success");
+    } else {
+      show(result.message, "error");
+    }
   }
 
   return (

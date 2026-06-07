@@ -3,15 +3,18 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { AppButton } from "@/components/ui/app-button";
 import { useToast } from "@/components/ui/toast";
 import { CheckIcon } from "@/components/ui/icons";
 import { publishListingAction } from "@/lib/actions/listings";
 import { Routes } from "@/lib/routes";
 import { selectionToQueryString, type VehicleSelection } from "@/lib/listing/selection";
+import { invalidateUserData } from "@/lib/query/invalidate";
 
 export function OfferActions({ selection }: { selection: VehicleSelection }) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { show } = useToast();
   const [publishing, setPublishing] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -27,6 +30,7 @@ export function OfferActions({ selection }: { selection: VehicleSelection }) {
     setPublishing(false);
 
     if (result.ok) {
+      invalidateUserData(queryClient);
       setSuccess(true);
       return;
     }
@@ -65,7 +69,6 @@ function PaymentSuccessSheet() {
   useEffect(() => {
     const t = setTimeout(() => {
       router.push(Routes.home);
-      router.refresh();
     }, 2200);
     return () => clearTimeout(t);
   }, [router]);

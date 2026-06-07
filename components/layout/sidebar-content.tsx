@@ -6,10 +6,10 @@ import { Avatar } from "@/components/ui/avatar";
 import { Logo } from "@/components/ui/logo";
 import { LogoutIcon } from "@/components/ui/icons";
 import { PRIMARY_NAV, FOOTER_NAV, isNavItemActive } from "./nav-items";
+import { NavLink } from "./nav-link";
 import { signOutAction } from "@/lib/actions/auth";
 import { Routes } from "@/lib/routes";
 import type { SessionIdentity } from "@/lib/auth/session";
-import { cn } from "@/lib/utils";
 
 /** Drawer/sidebar içeriği — mobil app_drawer.dart ile aynı yapı. */
 export function SidebarContent({
@@ -40,26 +40,16 @@ export function SidebarContent({
 
       {/* Primary nav */}
       <nav className="mt-6 flex flex-col gap-1">
-        {PRIMARY_NAV.map((item) => {
-          const active = isNavItemActive(pathname, item.href);
-          const Icon = item.icon;
-          return (
-            <Link
-              key={item.label}
-              href={item.href}
-              onClick={onNavigate}
-              className={cn(
-                "flex items-center gap-3.5 rounded-xl px-3 py-3 text-[0.95rem] font-semibold transition-colors",
-                active
-                  ? "bg-ink-900 text-paper"
-                  : "text-ink-900 hover:bg-cream",
-              )}
-            >
-              <Icon size={22} className={active ? "text-paper" : "text-ink-900"} />
-              {item.label}
-            </Link>
-          );
-        })}
+        {PRIMARY_NAV.map((item) => (
+          <NavLink
+            key={item.label}
+            href={item.href}
+            label={item.label}
+            icon={item.icon}
+            active={isNavItemActive(pathname, item.href)}
+            onNavigate={onNavigate}
+          />
+        ))}
       </nav>
 
       {/* Footer */}

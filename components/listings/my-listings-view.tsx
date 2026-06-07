@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ReceiptIcon, PlusIcon } from "@/components/ui/icons";
@@ -18,6 +18,7 @@ import {
 import { formatRemaining, formatNumber } from "@/lib/format";
 import { Routes } from "@/lib/routes";
 import type { ListingDto } from "@/lib/api/types";
+import { invalidateUserData } from "@/lib/query/invalidate";
 import { cn } from "@/lib/utils";
 
 const FILTERS: { id: ListingFilter; label: string }[] = [
@@ -27,7 +28,7 @@ const FILTERS: { id: ListingFilter; label: string }[] = [
 ];
 
 export function MyListingsView({ listings }: { listings: ListingDto[] }) {
-  const router = useRouter();
+  const queryClient = useQueryClient();
   const { show } = useToast();
   const [filter, setFilter] = useState<ListingFilter>("all");
   const [pending, startTransition] = useTransition();
@@ -45,7 +46,7 @@ export function MyListingsView({ listings }: { listings: ListingDto[] }) {
       setCancelingId(null);
       if (result.ok) {
         show("İlan iptal edildi.", "success");
-        router.refresh();
+        invalidateUserData(queryClient);
       } else {
         show(result.message, "error");
       }
