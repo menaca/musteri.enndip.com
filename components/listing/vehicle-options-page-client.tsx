@@ -6,7 +6,7 @@ import { VehicleOptions } from "@/components/listing/vehicle-options";
 import { VehicleOptionsPageSkeleton } from "@/components/skeletons/pages";
 import { useModelBundle } from "@/lib/query/hooks";
 import { parseSelection } from "@/lib/listing/selection";
-import { resolveListingColors } from "@/lib/listing/bundle-colors";
+import { colorsFromPanelSpec } from "@/lib/listing/bundle-colors";
 import { Routes } from "@/lib/routes";
 
 export function VehicleOptionsPageClient() {
@@ -42,11 +42,7 @@ export function VehicleOptionsPageClient() {
     );
   }
 
-  const colors = resolveListingColors(
-    selection.modelId,
-    bundle.colors,
-    bundle.panelSpec,
-  );
+  const colors = colorsFromPanelSpec(selection.modelId, bundle.panelSpec);
 
   return (
     <div className="px-5 py-6 sm:px-6 lg:px-10 lg:py-10">

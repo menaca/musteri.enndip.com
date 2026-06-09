@@ -171,12 +171,16 @@ export interface ListingDto {
   bidCount: number;
 }
 
+export interface ListingColorPreferenceDto {
+  name: string;
+  hexCode: string;
+}
+
 export interface CreateListingDto {
   brandId: string;
   modelId: string;
   engineId: string;
-  colorId?: string;
-  colorIds?: string[];
+  colorPreferences?: ListingColorPreferenceDto[];
   durationHours?: number;
 }
 

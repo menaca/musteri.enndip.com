@@ -1,21 +1,17 @@
 import { normalizeHexCode } from "@/lib/color";
 import type { CarModelColorDto, CarModelPanelSpecDto } from "@/lib/api/types";
 
-/** DB renkleri yoksa panel-spec renk skalasından türet (mobil davranışı). */
-export function resolveListingColors(
+/** Panel-spec renk skalası — tek kaynak (car_model_colors kullanılmaz). */
+export function colorsFromPanelSpec(
   modelId: string,
-  colorsRaw: CarModelColorDto[],
   panelSpec: CarModelPanelSpecDto | null,
 ): CarModelColorDto[] {
-  const fromDb = colorsRaw.filter((c) => c.name && c.hexCode);
-  if (fromDb.length > 0) return fromDb;
-
   if (!panelSpec?.colorScaleItems?.length) return [];
 
   return panelSpec.colorScaleItems
     .filter((c) => c.name && c.hex)
     .map((c) => {
-      const hex = normalizeHexCode(c.hex);
+      const hex = normalizeHexCode(c.hex).replace(/^#/, "");
       return {
         id: `panel:${c.name}:${hex}`,
         modelId,
@@ -26,3 +22,6 @@ export function resolveListingColors(
       };
     });
 }
+
+/** @deprecated colorsFromPanelSpec kullanın */
+export const resolveListingColors = colorsFromPanelSpec;
