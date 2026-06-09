@@ -13,7 +13,7 @@ import { PanelSpec } from "./panel-spec";
 import { Routes } from "@/lib/routes";
 import { selectionToQueryString, type VehicleSelection } from "@/lib/listing/selection";
 import type { CarModelColorDto, CarModelPanelSpecDto } from "@/lib/api/types";
-import { toDisplayHex } from "@/lib/color";
+import { ColorDot } from "@/components/ui/color-dot";
 import { cn } from "@/lib/utils";
 
 export function VehicleOptions({
@@ -195,7 +195,6 @@ export function VehicleOptions({
             {colors.map((color) => {
               const selected = selectedIds.has(color.id);
               const isPreview = previewColorId === color.id;
-              const hex = toDisplayHex(color.hexCode);
               return (
                 <button
                   key={color.id}
@@ -208,9 +207,9 @@ export function VehicleOptions({
                   )}
                   title={color.name}
                 >
-                  <span
-                    className="h-5 w-5 rounded-full border border-line"
-                    style={{ backgroundColor: hex }}
+                  <ColorDot
+                    hex={color.hexCode}
+                    className={cn("h-5 w-5", selected && "border-paper/40")}
                   />
                   {color.name}
                   {selected && <CheckIcon size={16} />}

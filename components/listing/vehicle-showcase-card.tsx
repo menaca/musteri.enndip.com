@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { ColorDot } from "@/components/ui/color-dot";
 import { RemoteImage } from "@/components/ui/remote-image";
 import { shouldBypassImageOptimizer } from "@/lib/image";
 import type { ListingColorChoice } from "@/lib/listing/hero";
@@ -63,10 +64,7 @@ export function VehicleShowcaseCard({
               key={c.id}
               className="inline-flex items-center gap-2 rounded-pill border border-line bg-paper px-3 py-1.5 text-xs font-medium"
             >
-              <span
-                className="h-3.5 w-3.5 rounded-full border border-line"
-                style={{ backgroundColor: c.hex.startsWith("#") ? c.hex : `#${c.hex}` }}
-              />
+              <ColorDot hex={c.hex} className="h-3.5 w-3.5" />
               {c.name}
             </span>
           ))}

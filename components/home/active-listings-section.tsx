@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { SectionHeader } from "@/components/ui/section-header";
+import { ColorDot } from "@/components/ui/color-dot";
 import { RemoteImage } from "@/components/ui/remote-image";
 import { PlusIcon } from "@/components/ui/icons";
 import { formatRemaining } from "@/lib/format";
@@ -11,11 +12,7 @@ function ColorDots({ hexes, extra }: { hexes: string[]; extra: number }) {
   return (
     <div className="flex items-center gap-1">
       {hexes.slice(0, 4).map((hex, i) => (
-        <span
-          key={i}
-          className="h-3.5 w-3.5 rounded-full border border-line"
-          style={{ backgroundColor: hex }}
-        />
+        <ColorDot key={i} hex={hex} className="h-3.5 w-3.5" />
       ))}
       {extra > 0 && <span className="text-xs font-medium text-muted">+{extra}</span>}
     </div>
