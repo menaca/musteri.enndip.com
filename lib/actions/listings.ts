@@ -30,7 +30,10 @@ function panelIdToPreference(id: string): ListingColorPreference | null {
   if (!id.startsWith("panel:")) return null;
   const parts = id.split(":");
   if (parts.length < 3) return null;
-  return { name: parts[1], hexCode: parts.slice(2).join(":") };
+  const name = parts[1]?.trim();
+  const hexCode = parts.slice(2).join(":").trim();
+  if (!name || !hexCode) return null;
+  return { name, hexCode };
 }
 
 function buildColorPreferences(input: PublishInput): ListingColorPreference[] {
